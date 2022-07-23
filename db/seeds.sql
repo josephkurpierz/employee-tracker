@@ -1,22 +1,23 @@
 INSERT INTO departments(name)
 VALUES
-("sales"),
-("purchasing"),
-("manufacturing"),
-("human resources");
+("Engineering"),
+("New Product Development"),
+("Manufacturing"),
+("Human Resources"),
+("Sales");
 
 INSERT INTO roles(title, salary, department_id)
 VALUES
-('sales manager','100k',1),
-('manager','80k',2),
-('manager','90k',3),
-('incoming', '50k',1),
-('outgoing', '20k', 1);
+('manager','100000',1),
+('team lead','80000',2),
+('supervisor','90000',3),
+('engineer', '50000',1),
+('intern', '20000', 1);
 
 INSERT INTO employees(first_name, last_name, role_id, manager_id)
 VALUES
-("big","shot",1,1),
-("not as big","shot",3,1),
-("medium","shot",2,1),
-("small","shot",4,2),
-("tiny","shot",5,3);
+("Billy","Shotgun",1,1),
+("Bradley","Farmall",3,1),
+("Miranda","Shucks",2,1),
+("I.P","Freely",4,2),
+("James","NotDean",5,3);

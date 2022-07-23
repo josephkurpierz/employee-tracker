@@ -17,6 +17,7 @@ const promptMenu = () => {
           "Add a role",
           "Add an employee",
           "Update employee role",
+          "Quit",
         ],
       },
     ])
@@ -57,14 +58,33 @@ const selectDepartments = () => {
 };
 
 const selectRoles = () => {
-  db.query(`SELECT * FROM roles`, (err, results) => {
-    console.table(results);
-    promptMenu();
-  });
+  db.query(
+    `SELECT roles.title, roles.salary, departments.name AS department 
+    FROM roles 
+    LEFT JOIN departments
+    ON roles.department_id=departments.id`,
+    (err, results) => {
+      console.table(results);
+      promptMenu();
+    }
+  );
 };
 
 const selectEmployees = () => {
-  db.query(`SELECT * FROM employees`, (err, results) => {
+  db.query(
+    `SELECT e.id, e.first_name, e.last_name, 
+     r.title AS role,
+     r.salary AS salary,
+     d.name AS department,
+     CONCAT(m.first_name," ",m.last_name) AS manager
+     FROM employees e
+     LEFT JOIN roles r
+     ON e.role_id = r.id
+     LEFT JOIN departments d
+     ON r.department_id = d.id
+     LEFT JOIN employees m
+     ON e.manager_id = m.id`, (err, results) => {
+      console.log("error",err);
     console.table(results);
     promptMenu();
   });
@@ -88,57 +108,67 @@ const addDepartment = () => {
       },
     ])
     .then((departmentName) => {
-      db.query(`INSERT INTO department SET name = ?`, departmentName);
-      promptMenu();
+      db.query(
+        `INSERT INTO departments (name) VALUES (?)`,
+        departmentName.name,
+        (err, rows) => {
+          if (err) {
+            console.log("error in department name", err.message);
+          }
+          console.log("Added Department");
+          return promptMenu();
+        }
+      );
     });
 };
 
 const addRole = () => {
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "title",
-      message: "What is title of the new role?",
-      validate: title => {
-        if(title) {
-          return true;
-        }else{
-          console.log("please enther the title of the new role");
-          return false;
-        }
-      }
-    },
-    {
-      type: "input",
-      name: "salary",
-      message: "what is the salary for the new role?",
-      validate: salary => {
-        if(salary){
-          return true;
-        } else {
-          console.log('enter the salary for the role');
-          return false;
-        }
-      }
-    },
-    {
-      type: "list",
-      name: "department",
-      message: "What department is this new role for?",
-      choices: departments
-
-    }
-  ])
-  .then(title, salary, department => {
-    db.query(`INSERT INTO roles SET title = ?, salary = ?, department_id = ?`,[title,salary,department]);
-    promptMenu();
-  })
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "title",
+        message: "What is title of the new role?",
+        validate: (title) => {
+          if (title) {
+            return true;
+          } else {
+            console.log("please enther the title of the new role");
+            return false;
+          }
+        },
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "what is the salary for the new role?",
+        validate: (salary) => {
+          if (salary) {
+            return true;
+          } else {
+            console.log("enter the salary for the role");
+            return false;
+          }
+        },
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "What department is this new role for?",
+        choices: departments,
+      },
+    ])
+    .then(title, salary, (department) => {
+      db.query(
+        `INSERT INTO roles SET title = ?, salary = ?, department_id = ?`,
+        [title, salary, department]
+      );
+      promptMenu();
+    });
 };
 
-const addEmployee = ()=> {
+const addEmployee = () => {};
 
-};
+const updateEmployee = () => {};
 
-const updateEmployee = () => {
-  
-};
+promptMenu();
